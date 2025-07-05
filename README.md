@@ -31,7 +31,7 @@ A responsive web-based age calculator that accurately computes age in years, mon
 - Event handling (click and Enter key)
 
 ## 📸 Preview
-![Age Calculator Preview](screenshot.png)
+![Age Calculator Preview](screenshot.PNG)
 
 ---
 
