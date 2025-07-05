@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Smart Age Calculator</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <style>
+    :root {
+      --primary: #4CAF50;
+      --accent: #2e7d32;
+      --error: #e53935;
+      --bg: #f5f7fa;
+    }
+
+    * {
+      box-sizing: border-box;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    body {
+      margin: 0;
+      padding: 0;
+      background-color: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      height: 100vh;
+    }
+
+    .container {
+      background: white;
+      padding: 40px;
+      border-radius: 16px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      max-width: 400px;
+      width: 100%;
+      transition: all 0.3s ease;
+    }
+
+    h1 {
+      color: var(--primary);
+      margin-bottom: 20px;
+      text-align: center;
+      font-size: 28px;
+    }
+
+    .input-group {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 16px;
+    }
+
+    .input-group input {
+      flex: 1;
+      padding: 12px;
+      font-size: 16px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      transition: border 0.3s ease;
+    }
+
+    .input-group input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .input-group input::placeholder {
+      color: #999;
+    }
+
+    button {
+      width: 100%;
+      background-color: var(--primary);
+      color: white;
+      padding: 14px;
+      font-size: 16px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background 0.3s ease;
+    }
+
+    button:hover {
+      background-color: var(--accent);
+    }
+
+    .result {
+      text-align: center;
+      margin-top: 20px;
+      font-size: 18px;
+      color: #333;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.4s ease;
+    }
+
+    .result.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .error {
+      color: var(--error);
+      text-align: center;
+      margin-top: 10px;
+      font-size: 14px;
+      display: none;
+    }
+
+    @media (max-width: 480px) {
+      .input-group {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>🎂 Smart Age Calculator</h1>
+  
+  <div class="input-group">
+    <input type="number" id="day" placeholder="DD" min="1" max="31">
+    <input type="number" id="month" placeholder="MM" min="1" max="12">
+    <input type="number" id="year" placeholder="YYYY" min="1900" max="2100">
+  </div>
+
+  <button onclick="calculateAge()">Calculate My Age</button>
+
+  <div class="error" id="errorMsg"></div>
+  <div class="result" id="resultBox"></div>
+</div>
+
+
+<script>
+  const dayInput = document.getElementById('day');
+  const monthInput = document.getElementById('month');
+  const yearInput = document.getElementById('year');
+  const errorBox = document.getElementById('errorMsg');
+  const resultBox = document.getElementById('resultBox');
+
+  [dayInput, monthInput, yearInput].forEach(input => {
+    input.addEventListener("keypress", function(e) {
+      if (e.key === "Enter") {
+        calculateAge();
+      }
+    });
+  });
+
+  function calculateAge() {
+    const day = parseInt(dayInput.value);
+    const month = parseInt(monthInput.value);
+    const year = parseInt(yearInput.value);
+    const today = new Date();
+
+    errorBox.style.display = 'none';
+    resultBox.classList.remove("show");
+
+    // Check for empty fields
+    if (!day || !month || !year) {
+      return showError("All fields are required.");
+    }
+
+    // Month range
+    if (month < 1 || month > 12) {
+      return showError("Month must be between 1 and 12.");
+    }
+
+    // Day range (we’ll also validate actual date later)
+    if (day < 1 || day > 31) {
+      return showError("Day must be between 1 and 31.");
+    }
+
+    // Year validity
+    if (year < 1900 || year > today.getFullYear()) {
+      return showError(`Year must be between 1900 and ${today.getFullYear()}.`);
+    }
+
+    // Validate full date
+    const birthDate = new Date(year, month - 1, day);
+    if (
+      birthDate.getDate() !== day ||
+      birthDate.getMonth() !== month - 1 ||
+      birthDate.getFullYear() !== year
+    ) {
+      return showError("Invalid calendar date (e.g., Feb 30 doesn't exist).");
+    }
+
+    if (birthDate > today) {
+      return showError("Birth date cannot be in the future.");
+    }
+
+    // Age calculation
+    let ageYears = today.getFullYear() - year;
+    let ageMonths = today.getMonth() - (month - 1);
+    let ageDays = today.getDate() - day;
+
+    if (ageDays < 0) {
+      ageMonths--;
+      const prevMonth = new Date(today.getFullYear(), today.getMonth(), 0);
+      ageDays += prevMonth.getDate();
+    }
+
+    if (ageMonths < 0) {
+      ageYears--;
+      ageMonths += 12;
+    }
+
+    resultBox.innerHTML = `
+      🎉 You are <strong>${ageYears}</strong> years,
+      <strong>${ageMonths}</strong> months, and
+      <strong>${ageDays}</strong> days old.
+    `;
+    resultBox.classList.add("show");
+  }
+
+  function showError(message) {
+    errorBox.textContent = message;
+    errorBox.style.display = 'block';
+  }
+</script>
+
+
+</body>
+</html>
